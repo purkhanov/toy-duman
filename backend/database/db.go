@@ -9,28 +9,26 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-type db struct {
-	db *gorm.DB
-}
+var db *gorm.DB
 
-func NewDB() (*db, error) {
-	d := &db{}
-	if err := d.initDB(); err != nil {
-		return nil, fmt.Errorf("failed to initialize database: %w", err)
-	}
+// func NewDB() (*db, error) {
+// 	d := &db{}
+// 	if err := d.initDB(); err != nil {
+// 		return nil, fmt.Errorf("failed to initialize database: %w", err)
+// 	}
 
-	// if err := initModels(); err != nil {
-	// 	return nil, fmt.Errorf("failed to initialize models: %w", err)
-	// }
+// 	// if err := initModels(); err != nil {
+// 	// 	return nil, fmt.Errorf("failed to initialize models: %w", err)
+// 	// }
 
-	// if err := initUser(); err != nil {
-	// 	return nil, fmt.Errorf("failed to initialize user: %w", err)
-	// }
+// 	// if err := initUser(); err != nil {
+// 	// 	return nil, fmt.Errorf("failed to initialize user: %w", err)
+// 	// }
 
-	return d, nil
-}
+// 	return d, nil
+// }
 
-func (d *db) initDB() error {
+func InitDB() error {
 	var err error
 	var gormLogger logger.Interface
 
@@ -44,7 +42,7 @@ func (d *db) initDB() error {
 		Logger: gormLogger,
 	}
 
-	d.db, err = gorm.Open(postgres.Open(d.getDSN()), c)
+	db, err = gorm.Open(postgres.Open(getDSN()), c)
 	if err != nil {
 		return err
 	}
@@ -56,13 +54,13 @@ func (d *db) initDB() error {
 	return nil
 }
 
-func (d *db) GetDB() *gorm.DB {
-	return d.db
+func GetDB() *gorm.DB {
+	return db
 }
 
-func (d *db) CloseDB() error {
-	if d.db != nil {
-		sqlDB, err := d.db.DB()
+func CloseDB() error {
+	if db != nil {
+		sqlDB, err := db.DB()
 		if err != nil {
 			return err
 		}
@@ -71,7 +69,7 @@ func (d *db) CloseDB() error {
 	return nil
 }
 
-func (d *db) getDSN() string {
+func getDSN() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		config.GetEnv("DB_HOST", "localhost"),

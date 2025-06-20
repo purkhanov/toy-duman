@@ -2,7 +2,9 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"toy-duman/config"
+	"toy-duman/database/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,6 +12,22 @@ import (
 )
 
 var db *gorm.DB
+
+func initModels() error {
+	models := []any{
+		&model.User{},
+		&model.Status{},
+	}
+
+	for _, model := range models {
+		if err := db.AutoMigrate(model); err != nil {
+			log.Printf("Error auto migrating model: %v", err)
+			return err
+		}
+	}
+
+	return nil
+}
 
 // func NewDB() (*db, error) {
 // 	d := &db{}
@@ -47,9 +65,9 @@ func InitDB() error {
 		return err
 	}
 
-	// if err := d.initModels(); err != nil {
-	// 	return err
-	// }
+	if err := initModels(); err != nil {
+		return err
+	}
 
 	return nil
 }
